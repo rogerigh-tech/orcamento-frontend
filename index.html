@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orçamento de Obra Rápido — Análise Técnica Profissional</title>
+  <meta name="description" content="Orçamento técnico profissional para obras e reformas em minutos. Baseado em SINAPI e CUB. Global.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=Fira+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #1D9E75;
+      --green-dark: #0F6E56;
+      --green-darker: #085041;
+      --green-light: #E1F5EE;
+      --green-mid: #9FE1CB;
+      --text: #2C2C2A;
+      --text-muted: #5F5E5A;
+      --bg: #ffffff;
+      --bg-soft: #F1EFE8;
+      --border: rgba(0,0,0,0.12);
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Fira Sans', sans-serif;
+      background: var(--bg-soft);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--green);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; }
+
+    .nav-badge {
+      font-size: 11px;
+      background: var(--green-light);
+      color: var(--green-dark);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(22px, 4vw, 32px);
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+
+    h1 span { color: var(--green); }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+
+    .trust-row {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .trust-item {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .trust-item::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 1rem 3rem;
+    }
+
+    /* ── STEPS BAR ── */
+    .steps-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+
+    .step-dot.active { background: var(--green); border-color: var(--green); color: white; }
+    .step-dot.done   { background: var(--green-dark); border-color: var(--green-dark); color: white; font-size: 14px; }
+
+    .step-line {
+      width: 48px; height: 2px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+    .step-line.done { background: var(--green-dark); }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+      color: var(--text);
+    }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Fira Sans', sans-serif;
+      background: #fafaf8;
+      color: var(--text);
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      background: var(--bg);
+    }
+
+    textarea { resize: vertical; min-height: 85px; line-height: 1.5; }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── BOTÕES ── */
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: 'Fira Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.75rem;
+    }
+
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { background: var(--green-mid); cursor: not-allowed; }
+
+    .btn-secondary {
+      padding: 10px 20px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Fira Sans', sans-serif;
+      cursor: pointer;
+    }
+
+    /* ── CHAT ── */
+    .chat-messages {
+      max-height: 280px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    .chat-bubble {
+      display: flex;
+      gap: 9px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+
+    .chat-bubble.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 600; flex-shrink: 0;
+    }
+
+    .avatar.ai   { background: var(--green-light); color: var(--green-dark); }
+    .avatar.user { background: #E6F1FB; color: #185FA5; }
+
+    .bubble-text {
+      background: #f5f5f2;
+      border-radius: 12px;
+      padding: 9px 13px;
+      font-size: 13px;
+      line-height: 1.5;
+      max-width: 85%;
+      border: 1px solid var(--border);
+    }
+
+    .chat-bubble.user .bubble-text {
+      background: var(--green-light);
+      border-color: var(--green-mid);
+      color: var(--green-darker);
+    }
+
+    .typing { display: flex; gap: 4px; align-items: center; height: 14px; }
+    .typing span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green-mid);
+      animation: blink 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100%{opacity:0.3} 40%{opacity:1} }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-input-row input { flex: 1; margin-bottom: 0; }
+
+    .btn-send {
+      padding: 10px 16px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Fira Sans', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-send:hover { background: var(--green-dark); }
+
+    /* ── PRÉVIA ── */
+    .preview-box {
+      background: var(--green-light);
+      border: 1px solid var(--green-mid);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .preview-header {
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green-darker);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--green-mid);
+      color: var(--green-dark);
+    }
+
+    .preview-item:last-child { border-bottom: none; }
+    .preview-item strong { font-weight: 500; }
+
+    /* ── LOCK BOX ── */
+    .lock-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .lock-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .lock-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .check-list {
+      text-align: left;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.9;
+      background: #fafaf8;
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    .check-list div::before { content: '✓ '; color: var(--green); font-weight: 600; }
+
+    .price-tag {
+      display: inline-block;
+      background: var(--green);
+      color: white;
+      padding: 5px 18px;
+      border-radius: 24px;
+      font-size: 18px;
+      font-weight: 500;
+      font-family: 'Sora', sans-serif;
+      margin-bottom: 1rem;
+    }
+
+    .secure-badge {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.88);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .loading-overlay.show { display: flex; }
+
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--green-mid);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* ── HIDDEN ── */
+    .hidden { display: none !important; }
+
+    /* ── RESPONSIVO ── */
+    @media (max-width: 480px) {
+      .row2 { grid-template-columns: 1fr; }
+      .trust-row { gap: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Processando...</div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a class="logo" href="/">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </div>
+    Orçamento de Obra Rápido
+  </a>
+  <span class="nav-badge">Global · SINAPI · CUB</span>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-tag">Análise técnica com IA especialista</div>
+  <h1>Orçamento profissional para <span>sua obra</span> em minutos</h1>
+  <p class="hero-sub">Responda algumas perguntas, converse com nossa IA especialista e receba um orçamento técnico completo com cronograma por etapas.</p>
+  <div class="trust-row">
+    <div class="trust-item">Base SINAPI/CUB</div>
+    <div class="trust-item">Cobertura global</div>
+    <div class="trust-item">PDF profissional</div>
+    <div class="trust-item">Entrega imediata</div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="container">
+
+  <!-- Steps bar -->
+  <div class="steps-bar">
+    <div class="step-dot active" id="s1">1</div>
+    <div class="step-line" id="l1"></div>
+    <div class="step-dot" id="s2">2</div>
+    <div class="step-line" id="l2"></div>
+    <div class="step-dot" id="s3">3</div>
+    <div class="step-line" id="l3"></div>
+    <div class="step-dot" id="s4">4</div>
+  </div>
+
+  <!-- STEP 1: Cadastro -->
+  <div id="step1">
+    <div class="card">
+      <div class="card-title">Seus dados</div>
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="userName" placeholder="Ex: João Silva">
+      </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="userEmail" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp</label>
+          <input type="text" id="userPhone" placeholder="+55 11 99999-0000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>País da obra</label>
+        <select id="userCountry">
+          <option value="br">🇧🇷 Brasil</option>
+          <option value="us">🇺🇸 Estados Unidos</option>
+          <option value="eu">🇪🇺 Europa</option>
+          <option value="global">🌍 Outro país</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="goStep2()">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Projeto + Chat -->
+  <div id="step2" class="hidden">
+    <div class="card">
+      <div class="card-title">Seu projeto</div>
+      <div class="form-group">
+        <label>Tipo de serviço</label>
+        <select id="serviceType">
+          <option value="">Selecione...</option>
+          <option value="reforma_geral">Reforma geral</option>
+          <option value="banheiro">Banheiro</option>
+          <option value="cozinha">Cozinha</option>
+          <option value="pintura">Pintura</option>
+          <option value="eletrica">Instalação elétrica</option>
+          <option value="hidraulica">Instalação hidráulica</option>
+          <option value="piso">Piso / revestimento</option>
+          <option value="construcao">Construção nova</option>
+          <option value="fachada">Fachada / área externa</option>
+        </select>
+      </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>Área estimada (m²)</label>
+          <input type="number" id="area" placeholder="Ex: 80" min="1">
+        </div>
+        <div class="form-group">
+          <label>Padrão</label>
+          <select id="standard">
+            <option value="basico">Básico</option>
+            <option value="medio" selected>Médio</option>
+            <option value="alto">Alto padrão</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Descreva o que precisa ser feito</label>
+        <textarea id="description" placeholder="Estado atual, o que precisa, materiais preferidos, detalhes importantes..."></textarea>
+      </div>
+      <div class="row2">
+        <div class="form-group">
+          <label>Material incluso?</label>
+          <select id="material">
+            <option value="sim">Sim, incluir material</option>
+            <option value="nao">Não, só mão de obra</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Demolição?</label>
+          <select id="demolition">
+            <option value="nao">Não</option>
+            <option value="sim">Sim</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Converse com a IA especialista</div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-bubble">
+          <div class="avatar ai">IA</div>
+          <div class="bubble-text">Olá! Sou especialista em construção civil. Preencha os dados do projeto acima e pode me fazer qualquer pergunta ou adicionar detalhes. Quanto mais informações, mais preciso será seu orçamento!</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Adicione detalhes ou faça perguntas..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn-send" onclick="sendChat()">Enviar</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goStep3()">Gerar análise técnica →</button>
+  </div>
+
+  <!-- STEP 3: Prévia + Pagamento -->
+  <div id="step3" class="hidden">
+    <div class="card">
+      <div class="card-title">Análise concluída</div>
+
+      <div class="preview-box">
+        <div class="preview-header">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Projeto analisado com sucesso
+        </div>
+        <div class="preview-item"><span>Serviço</span><strong id="prevTipo">—</strong></div>
+        <div class="preview-item"><span>Área</span><strong id="prevArea">—</strong></div>
+        <div class="preview-item"><span>Padrão</span><strong id="prevPadrao">—</strong></div>
+        <div class="preview-item"><span>Complexidade</span><strong id="prevComp">—</strong></div>
+        <div class="preview-item"><span>Etapas identificadas</span><strong id="prevEtapas">—</strong></div>
+        <div class="preview-item"><span>Alertas técnicos</span><strong id="prevAlertas">—</strong></div>
+      </div>
+
+      <div class="lock-box">
+        <div style="font-size:28px;margin-bottom:10px">🔓</div>
+        <div class="lock-title">Seu orçamento técnico completo está pronto</div>
+        <div class="lock-sub">Acesse agora o relatório detalhado com valor total, cronograma por etapas, recomendações e PDF profissional</div>
+        <div class="check-list">
+          <div>Valor total estimado com base SINAPI/CUB</div>
+          <div>Cronograma completo por etapas</div>
+          <div>Recomendações do especialista</div>
+          <div>Alertas de custos ocultos</div>
+          <div>PDF profissional enviado por email e WhatsApp</div>
+        </div>
+        <div class="price-tag" id="priceDisplay">R$ 49,90</div>
+        <button class="btn-primary" onclick="goCheckout()" id="payBtn">Acessar orçamento completo →</button>
+        <div class="secure-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Pagamento seguro via Stripe · Acesso imediato
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Aguardando (redirect para Stripe) -->
+  <div id="step4" class="hidden">
+    <div class="card" style="text-align:center;padding:2.5rem">
+      <div style="font-size:40px;margin-bottom:1rem">⏳</div>
+      <div class="card-title" style="margin-bottom:0.5rem">Redirecionando para pagamento...</div>
+      <p style="font-size:14px;color:var(--text-muted)">Você será direcionado ao checkout seguro do Stripe.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIGURAÇÃO ─────────────────────────────────────────────────────────────
+const BACKEND_URL = 'https://orcamento-backend-amft.onrender.com'; // ← TROCAR depois do deploy no Render
+
+const PRICES = {
+  br:     { basico: 900,  medio: 1300, alto: 2000, unlock: 'R$ 49,90' },
+  us:     { basico: 1000, medio: 1600, alto: 2800, unlock: '$ 9,90'   },
+  eu:     { basico: 900,  medio: 1500, alto: 2700, unlock: '€ 9,90'   },
+  global: { basico: 700,  medio: 1200, alto: 2000, unlock: '$ 9,90'   }
+};
+
+const SERVICE_LABELS = {
+  reforma_geral: 'Reforma Geral', banheiro: 'Banheiro', cozinha: 'Cozinha',
+  pintura: 'Pintura', eletrica: 'Elétrica', hidraulica: 'Hidráulica',
+  piso: 'Piso / Revestimento', construcao: 'Construção Nova', fachada: 'Fachada / Área Externa'
+};
+
+const TIMELINES_COUNT = {
+  reforma_geral: 6, banheiro: 5, cozinha: 5, pintura: 4,
+  eletrica: 5, hidraulica: 5, piso: 4, construcao: 7, fachada: 5
+};
+
+let appData = {};
+let chatHistory = [];
+
+// ── STEPS ────────────────────────────────────────────────────────────────────
+function setStep(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('step'+i).classList.toggle('hidden', i !== n);
+    const dot = document.getElementById('s'+i);
+    if (i < n)      { dot.className = 'step-dot done';   dot.textContent = '✓'; }
+    else if (i===n) { dot.className = 'step-dot active'; dot.textContent = i;   }
+    else            { dot.className = 'step-dot';        dot.textContent = i;   }
+    if (i < 4) document.getElementById('l'+i).className = 'step-line'+(i<n?' done':'');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── STEP 1 → 2 ───────────────────────────────────────────────────────────────
+function goStep2() {
+  const name  = document.getElementById('userName').value.trim();
+  const email = document.getElementById('userEmail').value.trim();
+  if (!name || !email) { alert('Por favor, preencha nome e email para continuar.'); return; }
+  if (!/\S+@\S+\.\S+/.test(email)) { alert('Email inválido.'); return; }
+
+  appData.name    = name;
+  appData.email   = email;
+  appData.phone   = document.getElementById('userPhone').value.trim();
+  appData.country = document.getElementById('userCountry').value;
+
+  document.getElementById('priceDisplay').textContent = PRICES[appData.country].unlock;
+  setStep(2);
+}
+
+// ── CHAT COM IA ───────────────────────────────────────────────────────────────
+function addBubble(text, who) {
+  const msgs = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.className = 'chat-bubble' + (who==='user' ? ' user' : '');
+  d.innerHTML = `<div class="avatar ${who}">${who==='ai'?'IA':'Eu'}</div><div class="bubble-text">${text}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.id = 'typingInd'; d.className = 'chat-bubble';
+  d.innerHTML = `<div class="avatar ai">IA</div><div class="bubble-text"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() { const t=document.getElementById('typingInd'); if(t)t.remove(); }
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addBubble(text, 'user');
+  chatHistory.push({ role: 'user', content: text });
+  showTyping();
+
+  const service  = document.getElementById('serviceType').value;
+  const area     = document.getElementById('area').value;
+  const desc     = document.getElementById('description').value;
+  const country  = appData.country || 'br';
+
+  const systemPrompt = `Você é um engenheiro civil sênior especialista em obras e reformas, com 20 anos de experiência no Brasil e exterior. Responda de forma direta, técnica e útil em português. Seja conciso (máximo 3 linhas). Contexto: Serviço: ${SERVICE_LABELS[service]||'não informado'}, Área: ${area||'não informada'} m², País: ${country}. Descrição: ${desc||'não informada'}. Faça perguntas técnicas pertinentes para refinar o orçamento se necessário.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: chatHistory
+      })
+    });
+    const data  = await res.json();
+    const reply = data.content?.[0]?.text || 'Entendido! Pode prosseguir com a análise.';
+    removeTyping();
+    addBubble(reply, 'ai');
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch(e) {
+    removeTyping();
+    addBubble('Informações recebidas! Pode prosseguir para gerar sua análise técnica.', 'ai');
+  }
+}
+
+// ── STEP 2 → 3 ───────────────────────────────────────────────────────────────
+function goStep3() {
+  const service   = document.getElementById('serviceType').value;
+  const area      = parseFloat(document.getElementById('area').value);
+  const standard  = document.getElementById('standard').value;
+  const material  = document.getElementById('material').value;
+  const demolition= document.getElementById('demolition').value;
+
+  if (!service || !area || area < 1) {
+    alert('Selecione o tipo de serviço e informe a área corretamente.'); return;
+  }
+
+  appData.service    = service;
+  appData.area       = area;
+  appData.standard   = standard;
+  appData.material   = material;
+  appData.demolition = demolition;
+  appData.description= document.getElementById('description').value;
+
+  const labels = { basico: 'Básico', medio: 'Médio', alto: 'Alto padrão' };
+  const etapas = TIMELINES_COUNT[service] || 6;
+  const alertas = demolition === 'sim' ? 'Sim (demolição)' : 'Nenhum crítico';
+
+  document.getElementById('prevTipo').textContent   = SERVICE_LABELS[service] || service;
+  document.getElementById('prevArea').textContent   = area + ' m²';
+  document.getElementById('prevPadrao').textContent = labels[standard];
+  document.getElementById('prevComp').textContent   = area > 100 ? 'Alta' : area > 50 ? 'Média' : 'Baixa';
+  document.getElementById('prevEtapas').textContent = etapas + ' etapas';
+  document.getElementById('prevAlertas').textContent= alertas;
+
+  setStep(3);
+}
+
+// ── CHECKOUT STRIPE ───────────────────────────────────────────────────────────
+async function goCheckout() {
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.textContent = 'Aguarde...';
+  showLoading('Criando sessão de pagamento segura...');
+  setStep(4);
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/create-checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(appData)
+    });
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('Erro ao criar sessão de pagamento: ' + (data.error || 'Tente novamente.'));
+      setStep(3);
+      btn.disabled = false;
+      btn.textContent = 'Acessar orçamento completo →';
+    }
+  } catch(e) {
+    alert('Erro de conexão. Verifique sua internet e tente novamente.');
+    setStep(3);
+    btn.disabled = false;
+    btn.textContent = 'Acessar orçamento completo →';
+  } finally {
+    hideLoading();
+  }
+}
+
+function showLoading(msg) {
+  document.getElementById('loadingText').textContent = msg || 'Processando...';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+// ── DETECTA RETORNO DO STRIPE ─────────────────────────────────────────────────
+function checkSuccess() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('session_id')) {
+    // Esconde tudo e mostra tela de sucesso
+    document.querySelector('nav').style.display = 'none';
+    document.querySelector('.hero').style.display = 'none';
+    document.querySelector('.container').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'flex';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', checkSuccess);
+</script>
+
+<!-- TELA DE SUCESSO (aparece após pagamento) -->
+<div id="successScreen" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:2rem;background:#F1EFE8;">
+  <div style="background:white;border-radius:16px;padding:2.5rem 2rem;max-width:460px;width:100%;text-align:center;border:1px solid rgba(0,0,0,0.08);">
+    <div style="width:72px;height:72px;background:#E1F5EE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:32px;">✓</div>
+    <h1 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:600;margin-bottom:0.5rem;color:#0F6E56;">Pagamento confirmado!</h1>
+    <p style="font-size:14px;color:#5F5E5A;margin-bottom:2rem;line-height:1.6;">Seu orçamento técnico profissional está sendo gerado e será entregue em instantes.</p>
+    <div style="background:#E1F5EE;border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;text-align:left;">
+      <div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#085041;margin-bottom:10px;line-height:1.4;">
+        <span style="font-size:16px;flex-shrink:0;">📧</span>
+        <span>O PDF será enviado para seu <strong>email</strong> em alguns minutos.</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#085041;margin-bottom:10px;line-height:1.4;">
+        <span style="font-size:16px;flex-shrink:0;">📱</span>
+        <span>Você também receberá no <strong>WhatsApp</strong> informado no cadastro.</span>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#085041;line-height:1.4;">
+        <span style="font-size:16px;flex-shrink:0;">⏱️</span>
+        <span>Tempo de entrega: <strong>até 5 minutos</strong>. Verifique sua caixa de spam se necessário.</span>
+      </div>
+    </div>
+    <a href="/" style="display:block;width:100%;padding:12px;background:#1D9E75;color:white;border:none;border-radius:8px;font-size:15px;font-weight:500;font-family:'Fira Sans',sans-serif;cursor:pointer;text-decoration:none;text-align:center;">Fazer novo orçamento</a>
+  </div>
+</div>
+
+</body>
+</html>
