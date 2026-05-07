@@ -555,6 +555,7 @@
           <option value="piso">Piso / revestimento</option>
           <option value="construcao">Construção nova</option>
           <option value="fachada">Fachada / área externa</option>
+          <option value="ar_condicionado">Ar condicionado</option>
         </select>
       </div>
       <div class="row2">
@@ -835,7 +836,16 @@ async function analyzeUploads() {
     text: `Analise as imagens/documentos enviados referente a este projeto: ${SERVICE_LABELS[service]||'reforma'}, área ${area||'?'} m². Descrição: ${desc||'não informada'}. Identifique o estado atual, problemas visíveis, e o que será necessário para a obra. Seja técnico e objetivo.`
   });
 
-  const systemPrompt = `Você é um engenheiro civil sênior com 20 anos de experiência. Analise as imagens/documentos da obra e forneça uma análise técnica precisa. Identifique: estado atual, problemas visíveis, complexidade do serviço, e fatores que podem impactar o custo. Seja direto e técnico. Responda em português.`;
+  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência. O cliente enviou fotos/documentos da obra.
+
+Analise as imagens com olhar técnico e humano:
+1. Descreva o que você vê (estado atual, materiais, problemas visíveis)
+2. Aponte riscos ou atenções importantes
+3. Mencione algo específico que impacta o custo
+4. Termine com UMA pergunta técnica para refinar melhor o orçamento
+
+Seja direto, específico e nunca genérico. Fale como um engenheiro experiente falando com o cliente, não como um robô.
+Projeto: ${SERVICE_LABELS[service]||'reforma'}, ${area||'?'} m². Descrição: ${desc||'não informada'}.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -895,7 +905,18 @@ async function sendChat() {
   const desc     = document.getElementById('description').value;
   const country  = appData.country || 'br';
 
-  const systemPrompt = `Você é um engenheiro civil sênior especialista em obras e reformas, com 20 anos de experiência no Brasil e exterior. Responda de forma direta, técnica e útil em português. Seja conciso (máximo 3 linhas). Contexto: Serviço: ${SERVICE_LABELS[service]||'não informado'}, Área: ${area||'não informada'} m², País: ${country}. Descrição: ${desc||'não informada'}. Faça perguntas técnicas pertinentes para refinar o orçamento se necessário.`;
+  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência em obras residenciais e comerciais. Você está conversando diretamente com um cliente que quer um orçamento de obra.
+
+Seu comportamento:
+- Nunca seja robótico nem repita frases genéricas
+- Analise o contexto do projeto (tipo: ${SERVICE_LABELS[service]||'não informado'}, área: ${area||'?'} m², padrão, descrição: "${desc||'não informada'}")
+- Faça UMA pergunta técnica por vez, relevante para melhorar a precisão do orçamento
+- Exemplos de perguntas úteis: tipo de revestimento desejado, estado atual das paredes, necessidade de quebrar azulejo, altura do pé-direito, se há infiltração, tipo de elétrica atual, quantos pontos elétricos, se é alvenaria ou drywall, etc.
+- Se o cliente mandar foto, comente algo específico do que viu
+- Quando tiver informações suficientes, diga que está pronto para gerar a análise
+- Use linguagem simples mas técnica, como um engenheiro falando com um cliente
+
+País do cliente: ${country}. Histórico da conversa disponível abaixo.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -952,11 +973,52 @@ function goStep3() {
   setStep(3);
 }
 
+// ── EMAILS COM ACESSO GRATUITO ───────────────────────────────────────────────
+const FREE_ACCESS_EMAILS = [
+  'roger.igh@gmail.com',
+  'roger.igh@hotmail.com',
+  'rogerio@orcamentodeobrarapido.com.br'
+];
+
 // ── CHECKOUT STRIPE ───────────────────────────────────────────────────────────
 async function goCheckout() {
   const btn = document.getElementById('payBtn');
   btn.disabled = true;
   btn.textContent = 'Aguarde...';
+
+  // Verifica se é email com acesso gratuito
+  const emailLower = (appData.email || '').toLowerCase().trim();
+  if (FREE_ACCESS_EMAILS.includes(emailLower)) {
+    showLoading('Gerando seu orçamento gratuito...');
+    try {
+      const res = await fetch(`${BACKEND_URL}/free-access`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appData)
+      });
+      const data = await res.json();
+      hideLoading();
+      if (data.ok) {
+        document.querySelector('nav').style.display = 'none';
+        document.querySelector('.hero').style.display = 'none';
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('successScreen').style.display = 'flex';
+      } else {
+        alert('Erro ao gerar orçamento gratuito. Tente novamente.');
+        setStep(3);
+        btn.disabled = false;
+        btn.textContent = 'Acessar orçamento completo →';
+      }
+    } catch(e) {
+      hideLoading();
+      alert('Erro de conexão. Tente novamente.');
+      setStep(3);
+      btn.disabled = false;
+      btn.textContent = 'Acessar orçamento completo →';
+    }
+    return;
+  }
+
   showLoading('Criando sessão de pagamento segura...');
   setStep(4);
 
