@@ -1,3 +1,6 @@
+bash
+
+cat > /mnt/user-data/outputs/index.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -9,464 +12,92 @@
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=Fira+Sans:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --green: #1D9E75;
-      --green-dark: #0F6E56;
-      --green-darker: #085041;
-      --green-light: #E1F5EE;
-      --green-mid: #9FE1CB;
-      --text: #2C2C2A;
-      --text-muted: #5F5E5A;
-      --bg: #ffffff;
-      --bg-soft: #F1EFE8;
-      --border: rgba(0,0,0,0.12);
-      --radius: 12px;
+      --green: #1D9E75; --green-dark: #0F6E56; --green-darker: #085041;
+      --green-light: #E1F5EE; --green-mid: #9FE1CB;
+      --text: #2C2C2A; --text-muted: #5F5E5A;
+      --bg: #ffffff; --bg-soft: #F1EFE8;
+      --border: rgba(0,0,0,0.12); --radius: 12px;
     }
-
-    body {
-      font-family: 'Fira Sans', sans-serif;
-      background: var(--bg-soft);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* ── NAV ── */
-    nav {
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      padding: 0 1.5rem;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Sora', sans-serif;
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .logo-icon {
-      width: 32px; height: 32px;
-      background: var(--green);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-
+    body { font-family: 'Fira Sans', sans-serif; background: var(--bg-soft); color: var(--text); min-height: 100vh; }
+    nav { background: var(--bg); border-bottom: 1px solid var(--border); padding: 0 1.5rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 600; color: var(--text); text-decoration: none; }
+    .logo-icon { width: 32px; height: 32px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
     .logo-icon svg { width: 18px; height: 18px; }
-
-    .nav-badge {
-      font-size: 11px;
-      background: var(--green-light);
-      color: var(--green-dark);
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-weight: 500;
-    }
-
-    /* ── HERO ── */
-    .hero {
-      text-align: center;
-      padding: 3rem 1.5rem 2rem;
-    }
-
-    .hero-tag {
-      display: inline-block;
-      background: var(--green-light);
-      color: var(--green-dark);
-      font-size: 12px;
-      font-weight: 500;
-      padding: 5px 14px;
-      border-radius: 20px;
-      margin-bottom: 1rem;
-      letter-spacing: 0.04em;
-    }
-
-    h1 {
-      font-family: 'Sora', sans-serif;
-      font-size: clamp(22px, 4vw, 32px);
-      font-weight: 600;
-      line-height: 1.3;
-      margin-bottom: 0.75rem;
-      color: var(--text);
-    }
-
+    .nav-badge { font-size: 11px; background: var(--green-light); color: var(--green-dark); padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+    .hero { text-align: center; padding: 3rem 1.5rem 2rem; }
+    .hero-tag { display: inline-block; background: var(--green-light); color: var(--green-dark); font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; margin-bottom: 1rem; letter-spacing: 0.04em; }
+    h1 { font-family: 'Sora', sans-serif; font-size: clamp(22px, 4vw, 32px); font-weight: 600; line-height: 1.3; margin-bottom: 0.75rem; color: var(--text); }
     h1 span { color: var(--green); }
-
-    .hero-sub {
-      font-size: 15px;
-      color: var(--text-muted);
-      max-width: 480px;
-      margin: 0 auto 2rem;
-      line-height: 1.6;
-    }
-
-    .trust-row {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-    }
-
-    .trust-item {
-      font-size: 12px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .trust-item::before {
-      content: '✓';
-      color: var(--green);
-      font-weight: 600;
-    }
-
-    /* ── CONTAINER ── */
-    .container {
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 0 1rem 3rem;
-    }
-
-    /* ── STEPS BAR ── */
-    .steps-bar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      margin-bottom: 1.5rem;
-    }
-
-    .step-dot {
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      border: 1.5px solid var(--border);
-      background: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-muted);
-      transition: all 0.3s;
-    }
-
+    .hero-sub { font-size: 15px; color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; line-height: 1.6; }
+    .trust-row { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    .trust-item { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+    .trust-item::before { content: '✓'; color: var(--green); font-weight: 600; }
+    .container { max-width: 560px; margin: 0 auto; padding: 0 1rem 3rem; }
+    .steps-bar { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 1.5rem; }
+    .step-dot { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--text-muted); transition: all 0.3s; }
     .step-dot.active { background: var(--green); border-color: var(--green); color: white; }
-    .step-dot.done   { background: var(--green-dark); border-color: var(--green-dark); color: white; font-size: 14px; }
-
-    .step-line {
-      width: 48px; height: 2px;
-      background: var(--border);
-      transition: background 0.3s;
-    }
+    .step-dot.done { background: var(--green-dark); border-color: var(--green-dark); color: white; font-size: 14px; }
+    .step-line { width: 48px; height: 2px; background: var(--border); transition: background 0.3s; }
     .step-line.done { background: var(--green-dark); }
-
-    /* ── CARD ── */
-    .card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .card-title {
-      font-family: 'Sora', sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      margin-bottom: 1.25rem;
-      color: var(--text);
-    }
-
-    /* ── FORM ── */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+    .card-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; color: var(--text); }
     .form-group { margin-bottom: 1rem; }
     .form-group:last-child { margin-bottom: 0; }
-
-    label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      margin-bottom: 5px;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 10px 13px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'Fira Sans', sans-serif;
-      background: #fafaf8;
-      color: var(--text);
-      transition: border-color 0.2s;
-      appearance: none;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--green);
-      background: var(--bg);
-    }
-
+    label { display: block; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 5px; }
+    input, select, textarea { width: 100%; padding: 10px 13px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: 'Fira Sans', sans-serif; background: #fafaf8; color: var(--text); transition: border-color 0.2s; appearance: none; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); background: var(--bg); }
     textarea { resize: vertical; min-height: 85px; line-height: 1.5; }
-
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    /* ── BOTÕES ── */
-    .btn-primary {
-      width: 100%;
-      padding: 12px;
-      background: var(--green);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 500;
-      font-family: 'Fira Sans', sans-serif;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      margin-top: 0.75rem;
-    }
-
+    .btn-primary { width: 100%; padding: 12px; background: var(--green); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; font-family: 'Fira Sans', sans-serif; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.75rem; }
     .btn-primary:hover { background: var(--green-dark); }
     .btn-primary:active { transform: scale(0.99); }
     .btn-primary:disabled { background: var(--green-mid); cursor: not-allowed; }
-
-    .btn-secondary {
-      padding: 10px 20px;
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'Fira Sans', sans-serif;
-      cursor: pointer;
-    }
-
-    /* ── CHAT ── */
-    .chat-messages {
-      max-height: 280px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-    }
-
-    .chat-bubble {
-      display: flex;
-      gap: 9px;
-      margin-bottom: 10px;
-      align-items: flex-start;
-    }
-
+    .chat-messages { max-height: 280px; overflow-y: auto; margin-bottom: 10px; }
+    .chat-bubble { display: flex; gap: 9px; margin-bottom: 10px; align-items: flex-start; }
     .chat-bubble.user { flex-direction: row-reverse; }
-
-    .avatar {
-      width: 30px; height: 30px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px; font-weight: 600; flex-shrink: 0;
-    }
-
-    .avatar.ai   { background: var(--green-light); color: var(--green-dark); }
+    .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+    .avatar.ai { background: var(--green-light); color: var(--green-dark); }
     .avatar.user { background: #E6F1FB; color: #185FA5; }
-
-    .bubble-text {
-      background: #f5f5f2;
-      border-radius: 12px;
-      padding: 9px 13px;
-      font-size: 13px;
-      line-height: 1.5;
-      max-width: 85%;
-      border: 1px solid var(--border);
-    }
-
-    .chat-bubble.user .bubble-text {
-      background: var(--green-light);
-      border-color: var(--green-mid);
-      color: var(--green-darker);
-    }
-
+    .bubble-text { background: #f5f5f2; border-radius: 12px; padding: 9px 13px; font-size: 13px; line-height: 1.5; max-width: 85%; border: 1px solid var(--border); }
+    .chat-bubble.user .bubble-text { background: var(--green-light); border-color: var(--green-mid); color: var(--green-darker); }
     .typing { display: flex; gap: 4px; align-items: center; height: 14px; }
-    .typing span {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--green-mid);
-      animation: blink 1.2s infinite;
-    }
+    .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--green-mid); animation: blink 1.2s infinite; }
     .typing span:nth-child(2) { animation-delay: 0.2s; }
     .typing span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes blink { 0%,80%,100%{opacity:0.3} 40%{opacity:1} }
-
-    .chat-input-row {
-      display: flex;
-      gap: 8px;
-    }
-
+    .chat-input-row { display: flex; gap: 8px; }
     .chat-input-row input { flex: 1; margin-bottom: 0; }
-
-    .btn-send {
-      padding: 10px 16px;
-      background: var(--green);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: 'Fira Sans', sans-serif;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
+    .btn-send { padding: 10px 16px; background: var(--green); color: white; border: none; border-radius: 8px; font-size: 13px; font-family: 'Fira Sans', sans-serif; cursor: pointer; white-space: nowrap; }
     .btn-send:hover { background: var(--green-dark); }
-
-    /* ── PRÉVIA ── */
-    .preview-box {
-      background: var(--green-light);
-      border: 1px solid var(--green-mid);
-      border-radius: 10px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-    }
-
-    .preview-header {
-      font-family: 'Sora', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--green-darker);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .preview-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--green-mid);
-      color: var(--green-dark);
-    }
-
+    .preview-box { background: var(--green-light); border: 1px solid var(--green-mid); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+    .preview-header { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 500; color: var(--green-darker); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .preview-item { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px solid var(--green-mid); color: var(--green-dark); }
     .preview-item:last-child { border-bottom: none; }
     .preview-item strong { font-weight: 500; }
-
-    /* ── LOCK BOX ── */
-    .lock-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      text-align: center;
-    }
-
-    .lock-title {
-      font-family: 'Sora', sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      margin-bottom: 6px;
-    }
-
-    .lock-sub {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-      line-height: 1.5;
-    }
-
-    .check-list {
-      text-align: left;
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 1.25rem;
-      line-height: 1.9;
-      background: #fafaf8;
-      border-radius: 8px;
-      padding: 10px 14px;
-    }
-
+    .lock-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; text-align: center; }
+    .lock-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 500; margin-bottom: 6px; }
+    .lock-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+    .check-list { text-align: left; font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.9; background: #fafaf8; border-radius: 8px; padding: 10px 14px; }
     .check-list div::before { content: '✓ '; color: var(--green); font-weight: 600; }
-
-    .price-tag {
-      display: inline-block;
-      background: var(--green);
-      color: white;
-      padding: 5px 18px;
-      border-radius: 24px;
-      font-size: 18px;
-      font-weight: 500;
-      font-family: 'Sora', sans-serif;
-      margin-bottom: 1rem;
-    }
-
-    .secure-badge {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-    }
-
-    /* ── LOADING OVERLAY ── */
-    .loading-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(255,255,255,0.88);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    .price-tag { display: inline-block; background: var(--green); color: white; padding: 5px 18px; border-radius: 24px; font-size: 18px; font-weight: 500; font-family: 'Sora', sans-serif; margin-bottom: 1rem; }
+    .secure-badge { font-size: 11px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.88); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
     .loading-overlay.show { display: flex; }
-
-    .spinner {
-      width: 36px; height: 36px;
-      border: 3px solid var(--green-mid);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--green-mid); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-text {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    /* ── HIDDEN ── */
+    .loading-text { font-size: 14px; color: var(--text-muted); }
     .hidden { display: none !important; }
-
-    /* ── RESPONSIVO ── */
-    @media (max-width: 480px) {
-      .row2 { grid-template-columns: 1fr; }
-      .trust-row { gap: 0.75rem; }
-    }
+    @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } .trust-row { gap: 0.75rem; } }
   </style>
 </head>
 <body>
 
-<!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="loading-text" id="loadingText">Processando...</div>
 </div>
 
-<!-- Nav -->
 <nav>
   <a class="logo" href="/">
     <div class="logo-icon">
@@ -480,7 +111,6 @@
   <span class="nav-badge">Global · SINAPI · CUB</span>
 </nav>
 
-<!-- Hero -->
 <div class="hero">
   <div class="hero-tag">Análise técnica com IA especialista</div>
   <h1>Orçamento profissional para <span>sua obra</span> em minutos</h1>
@@ -493,10 +123,7 @@
   </div>
 </div>
 
-<!-- Main -->
 <div class="container">
-
-  <!-- Steps bar -->
   <div class="steps-bar">
     <div class="step-dot active" id="s1">1</div>
     <div class="step-line" id="l1"></div>
@@ -507,7 +134,7 @@
     <div class="step-dot" id="s4">4</div>
   </div>
 
-  <!-- STEP 1: Cadastro -->
+  <!-- STEP 1 -->
   <div id="step1">
     <div class="card">
       <div class="card-title">Seus dados</div>
@@ -538,7 +165,7 @@
     </div>
   </div>
 
-  <!-- STEP 2: Projeto + Chat -->
+  <!-- STEP 2 -->
   <div id="step2" class="hidden">
     <div class="card">
       <div class="card-title">Seu projeto</div>
@@ -593,10 +220,13 @@
         </div>
       </div>
 
-      <!-- Upload de fotos e PDF -->
       <div class="form-group" style="margin-top:0.5rem">
         <label>Fotos da obra (até 4) — opcional</label>
-        <div id="photoDropZone" style="border:1.5px dashed var(--border);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;background:var(--bg-soft);transition:border-color 0.2s;" onclick="document.getElementById('photoInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handlePhotoDrop(event)">
+        <div id="photoDropZone" style="border:1.5px dashed var(--border);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;background:var(--bg-soft);transition:border-color 0.2s;"
+          onclick="document.getElementById('photoInput').click()"
+          ondragover="event.preventDefault();this.style.borderColor='var(--green)'"
+          ondragleave="this.style.borderColor='var(--border)'"
+          ondrop="handlePhotoDrop(event)">
           <div style="font-size:22px;margin-bottom:4px">📷</div>
           <div style="font-size:13px;color:var(--text-muted)">Clique ou arraste as fotos aqui</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:2px">JPG, PNG ou WEBP · máx. 4 fotos · 5MB cada</div>
@@ -607,7 +237,11 @@
 
       <div class="form-group">
         <label>Planta ou documento PDF — opcional</label>
-        <div id="pdfDropZone" style="border:1.5px dashed var(--border);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;background:var(--bg-soft);transition:border-color 0.2s;" onclick="document.getElementById('pdfInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handlePdfDrop(event)">
+        <div id="pdfDropZone" style="border:1.5px dashed var(--border);border-radius:8px;padding:1rem;text-align:center;cursor:pointer;background:var(--bg-soft);transition:border-color 0.2s;"
+          onclick="document.getElementById('pdfInput').click()"
+          ondragover="event.preventDefault();this.style.borderColor='var(--green)'"
+          ondragleave="this.style.borderColor='var(--border)'"
+          ondrop="handlePdfDrop(event)">
           <div style="font-size:22px;margin-bottom:4px">📄</div>
           <div style="font-size:13px;color:var(--text-muted)">Clique ou arraste o PDF aqui</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:2px">PDF · máx. 10MB</div>
@@ -622,7 +256,7 @@
       <div class="chat-messages" id="chatMessages">
         <div class="chat-bubble">
           <div class="avatar ai">IA</div>
-          <div class="bubble-text">Olá! Sou especialista em construção civil. Preencha os dados do projeto acima e pode me fazer qualquer pergunta ou adicionar detalhes. Quanto mais informações, mais preciso será seu orçamento!</div>
+          <div class="bubble-text">Olá! Sou o Eng. Rafael, especialista em construção civil. Preencha os dados do projeto acima e pode me fazer qualquer pergunta ou adicionar detalhes. Quanto mais informações, mais preciso será seu orçamento!</div>
         </div>
       </div>
       <div class="chat-input-row">
@@ -634,11 +268,10 @@
     <button class="btn-primary" onclick="goStep3()">Gerar análise técnica →</button>
   </div>
 
-  <!-- STEP 3: Prévia + Pagamento -->
+  <!-- STEP 3 -->
   <div id="step3" class="hidden">
     <div class="card">
       <div class="card-title">Análise concluída</div>
-
       <div class="preview-box">
         <div class="preview-header">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F6E56" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -651,7 +284,6 @@
         <div class="preview-item"><span>Etapas identificadas</span><strong id="prevEtapas">—</strong></div>
         <div class="preview-item"><span>Alertas técnicos</span><strong id="prevAlertas">—</strong></div>
       </div>
-
       <div class="lock-box">
         <div style="font-size:28px;margin-bottom:10px">🔓</div>
         <div class="lock-title">Seu orçamento técnico completo está pronto</div>
@@ -673,7 +305,7 @@
     </div>
   </div>
 
-  <!-- STEP 4: Aguardando (redirect para Stripe) -->
+  <!-- STEP 4 -->
   <div id="step4" class="hidden">
     <div class="card" style="text-align:center;padding:2.5rem">
       <div style="font-size:40px;margin-bottom:1rem">⏳</div>
@@ -681,12 +313,11 @@
       <p style="font-size:14px;color:var(--text-muted)">Você será direcionado ao checkout seguro do Stripe.</p>
     </div>
   </div>
-
 </div>
 
 <script>
-// ── CONFIGURAÇÃO ─────────────────────────────────────────────────────────────
-const BACKEND_URL = 'https://orcamento-backend-amft.onrender.com'; // ← TROCAR depois do deploy no Render
+// ✅ URL CORRETA DO BACKEND
+const BACKEND_URL = 'https://orcamento-backend-amft.onrender.com';
 
 const PRICES = {
   br:     { basico: 900,  medio: 1300, alto: 2000, unlock: 'R$ 49,90' },
@@ -698,62 +329,64 @@ const PRICES = {
 const SERVICE_LABELS = {
   reforma_geral: 'Reforma Geral', banheiro: 'Banheiro', cozinha: 'Cozinha',
   pintura: 'Pintura', eletrica: 'Elétrica', hidraulica: 'Hidráulica',
-  piso: 'Piso / Revestimento', construcao: 'Construção Nova', fachada: 'Fachada / Área Externa'
+  piso: 'Piso / Revestimento', construcao: 'Construção Nova',
+  fachada: 'Fachada / Área Externa', ar_condicionado: 'Ar Condicionado'
 };
 
 const TIMELINES_COUNT = {
   reforma_geral: 6, banheiro: 5, cozinha: 5, pintura: 4,
-  eletrica: 5, hidraulica: 5, piso: 4, construcao: 7, fachada: 5
+  eletrica: 5, hidraulica: 5, piso: 4, construcao: 7,
+  fachada: 5, ar_condicionado: 4
 };
+
+// ✅ EMAILS COM ACESSO GRATUITO
+const FREE_ACCESS_EMAILS = [
+  'roger.igh@gmail.com',
+  'roger.igh@hotmail.com',
+  'rogerio@orcamentodeobrarapido.com.br'
+];
 
 let appData = {};
 let chatHistory = [];
+let uploadedPhotos = [];
+let uploadedPdf = null;
 
-// ── STEPS ────────────────────────────────────────────────────────────────────
+// ── STEPS ──
 function setStep(n) {
   [1,2,3,4].forEach(i => {
     document.getElementById('step'+i).classList.toggle('hidden', i !== n);
     const dot = document.getElementById('s'+i);
-    if (i < n)      { dot.className = 'step-dot done';   dot.textContent = '✓'; }
-    else if (i===n) { dot.className = 'step-dot active'; dot.textContent = i;   }
-    else            { dot.className = 'step-dot';        dot.textContent = i;   }
-    if (i < 4) document.getElementById('l'+i).className = 'step-line'+(i<n?' done':'');
+    if (i < n)       { dot.className = 'step-dot done';   dot.textContent = '✓'; }
+    else if (i === n) { dot.className = 'step-dot active'; dot.textContent = i;   }
+    else              { dot.className = 'step-dot';        dot.textContent = i;   }
+    if (i < 4) document.getElementById('l'+i).className = 'step-line' + (i < n ? ' done' : '');
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── STEP 1 → 2 ───────────────────────────────────────────────────────────────
+// ── STEP 1 → 2 ──
 function goStep2() {
   const name  = document.getElementById('userName').value.trim();
   const email = document.getElementById('userEmail').value.trim();
   if (!name || !email) { alert('Por favor, preencha nome e email para continuar.'); return; }
   if (!/\S+@\S+\.\S+/.test(email)) { alert('Email inválido.'); return; }
-
   appData.name    = name;
   appData.email   = email;
   appData.phone   = document.getElementById('userPhone').value.trim();
   appData.country = document.getElementById('userCountry').value;
-
   document.getElementById('priceDisplay').textContent = PRICES[appData.country].unlock;
   setStep(2);
 }
 
-// ── UPLOAD DE FOTOS E PDF ────────────────────────────────────────────────────
-let uploadedPhotos = []; // array de base64
-let uploadedPdf = null;  // base64
-
+// ── UPLOAD FOTOS ──
 function handlePhotoSelect(input) {
-  const files = Array.from(input.files).slice(0, 4);
-  processPhotos(files);
+  processPhotos(Array.from(input.files).slice(0, 4));
 }
-
 function handlePhotoDrop(e) {
   e.preventDefault();
   document.getElementById('photoDropZone').style.borderColor = 'var(--border)';
-  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).slice(0, 4);
-  processPhotos(files);
+  processPhotos(Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).slice(0, 4));
 }
-
 function processPhotos(files) {
   uploadedPhotos = [];
   const preview = document.getElementById('photoPreview');
@@ -762,10 +395,7 @@ function processPhotos(files) {
     if (file.size > 5 * 1024 * 1024) { alert('Foto muito grande. Máximo 5MB cada.'); return; }
     const reader = new FileReader();
     reader.onload = (e) => {
-      const base64 = e.target.result.split(',')[1];
-      const mediaType = file.type;
-      uploadedPhotos.push({ base64, mediaType });
-      // Preview
+      uploadedPhotos.push({ base64: e.target.result.split(',')[1], mediaType: file.type });
       const img = document.createElement('img');
       img.src = e.target.result;
       img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)';
@@ -779,6 +409,7 @@ function processPhotos(files) {
   }
 }
 
+// ── UPLOAD PDF ──
 function handlePdfSelect(input) {
   const file = input.files[0];
   if (!file) return;
@@ -786,13 +417,12 @@ function handlePdfSelect(input) {
   const reader = new FileReader();
   reader.onload = (e) => {
     uploadedPdf = { base64: e.target.result.split(',')[1], name: file.name };
-    document.getElementById('pdfPreview').innerHTML = `📄 ${file.name} ✓`;
+    document.getElementById('pdfPreview').innerHTML = '📄 ' + file.name + ' ✓';
     document.getElementById('pdfDropZone').style.borderColor = 'var(--green)';
     setTimeout(() => analyzeUploads(), 500);
   };
   reader.readAsDataURL(file);
 }
-
 function handlePdfDrop(e) {
   e.preventDefault();
   document.getElementById('pdfDropZone').style.borderColor = 'var(--border)';
@@ -805,58 +435,29 @@ function handlePdfDrop(e) {
   }
 }
 
+// ── ANÁLISE DE UPLOADS ──
 async function analyzeUploads() {
   if (uploadedPhotos.length === 0 && !uploadedPdf) return;
-
   showTyping();
-
   const service = document.getElementById('serviceType').value;
   const area    = document.getElementById('area').value;
   const desc    = document.getElementById('description').value;
-
-  // Monta o conteúdo da mensagem com imagens
   const userContent = [];
-
-  uploadedPhotos.forEach((photo, i) => {
-    userContent.push({
-      type: 'image',
-      source: { type: 'base64', media_type: photo.mediaType, data: photo.base64 }
-    });
+  uploadedPhotos.forEach(photo => {
+    userContent.push({ type: 'image', source: { type: 'base64', media_type: photo.mediaType, data: photo.base64 } });
   });
-
   if (uploadedPdf) {
-    userContent.push({
-      type: 'document',
-      source: { type: 'base64', media_type: 'application/pdf', data: uploadedPdf.base64 }
-    });
+    userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: uploadedPdf.base64 } });
   }
+  userContent.push({ type: 'text', text: `Analise as imagens/documentos enviados referente a este projeto: ${SERVICE_LABELS[service]||'reforma'}, área ${area||'?'} m². Descrição: ${desc||'não informada'}. Identifique o estado atual, problemas visíveis, e o que será necessário para a obra. Seja técnico e objetivo.` });
 
-  userContent.push({
-    type: 'text',
-    text: `Analise as imagens/documentos enviados referente a este projeto: ${SERVICE_LABELS[service]||'reforma'}, área ${area||'?'} m². Descrição: ${desc||'não informada'}. Identifique o estado atual, problemas visíveis, e o que será necessário para a obra. Seja técnico e objetivo.`
-  });
-
-  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência. O cliente enviou fotos/documentos da obra.
-
-Analise as imagens com olhar técnico e humano:
-1. Descreva o que você vê (estado atual, materiais, problemas visíveis)
-2. Aponte riscos ou atenções importantes
-3. Mencione algo específico que impacta o custo
-4. Termine com UMA pergunta técnica para refinar melhor o orçamento
-
-Seja direto, específico e nunca genérico. Fale como um engenheiro experiente falando com o cliente, não como um robô.
-Projeto: ${SERVICE_LABELS[service]||'reforma'}, ${area||'?'} m². Descrição: ${desc||'não informada'}.`;
+  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência. Analise as imagens com olhar técnico: descreva o estado atual, aponte riscos, mencione o que impacta o custo e termine com UMA pergunta técnica para refinar o orçamento. Seja direto e específico, nunca genérico. Projeto: ${SERVICE_LABELS[service]||'reforma'}, ${area||'?'} m².`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userContent }]
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: systemPrompt, messages: [{ role: 'user', content: userContent }] })
     });
     const data = await res.json();
     const reply = data.content?.[0]?.text || 'Imagens recebidas! Analisarei para gerar um orçamento mais preciso.';
@@ -871,25 +472,23 @@ Projeto: ${SERVICE_LABELS[service]||'reforma'}, ${area||'?'} m². Descrição: $
   }
 }
 
-// ── CHAT COM IA ───────────────────────────────────────────────────────────────
+// ── CHAT ──
 function addBubble(text, who) {
   const msgs = document.getElementById('chatMessages');
   const d = document.createElement('div');
-  d.className = 'chat-bubble' + (who==='user' ? ' user' : '');
-  d.innerHTML = `<div class="avatar ${who}">${who==='ai'?'IA':'Eu'}</div><div class="bubble-text">${text}</div>`;
+  d.className = 'chat-bubble' + (who === 'user' ? ' user' : '');
+  d.innerHTML = '<div class="avatar ' + who + '">' + (who === 'ai' ? 'IA' : 'Eu') + '</div><div class="bubble-text">' + text + '</div>';
   msgs.appendChild(d);
   msgs.scrollTop = msgs.scrollHeight;
 }
-
 function showTyping() {
   const msgs = document.getElementById('chatMessages');
   const d = document.createElement('div');
   d.id = 'typingInd'; d.className = 'chat-bubble';
-  d.innerHTML = `<div class="avatar ai">IA</div><div class="bubble-text"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  d.innerHTML = '<div class="avatar ai">IA</div><div class="bubble-text"><div class="typing"><span></span><span></span><span></span></div></div>';
   msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
 }
-
-function removeTyping() { const t=document.getElementById('typingInd'); if(t)t.remove(); }
+function removeTyping() { const t = document.getElementById('typingInd'); if(t) t.remove(); }
 
 async function sendChat() {
   const input = document.getElementById('chatInput');
@@ -900,34 +499,17 @@ async function sendChat() {
   chatHistory.push({ role: 'user', content: text });
   showTyping();
 
-  const service  = document.getElementById('serviceType').value;
-  const area     = document.getElementById('area').value;
-  const desc     = document.getElementById('description').value;
-  const country  = appData.country || 'br';
+  const service = document.getElementById('serviceType').value;
+  const area    = document.getElementById('area').value;
+  const desc    = document.getElementById('description').value;
 
-  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência em obras residenciais e comerciais. Você está conversando diretamente com um cliente que quer um orçamento de obra.
-
-Seu comportamento:
-- Nunca seja robótico nem repita frases genéricas
-- Analise o contexto do projeto (tipo: ${SERVICE_LABELS[service]||'não informado'}, área: ${area||'?'} m², padrão, descrição: "${desc||'não informada'}")
-- Faça UMA pergunta técnica por vez, relevante para melhorar a precisão do orçamento
-- Exemplos de perguntas úteis: tipo de revestimento desejado, estado atual das paredes, necessidade de quebrar azulejo, altura do pé-direito, se há infiltração, tipo de elétrica atual, quantos pontos elétricos, se é alvenaria ou drywall, etc.
-- Se o cliente mandar foto, comente algo específico do que viu
-- Quando tiver informações suficientes, diga que está pronto para gerar a análise
-- Use linguagem simples mas técnica, como um engenheiro falando com um cliente
-
-País do cliente: ${country}. Histórico da conversa disponível abaixo.`;
+  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência em obras residenciais e comerciais. Contexto do projeto: tipo ${SERVICE_LABELS[service]||'não informado'}, área ${area||'?'} m², descrição: "${desc||'não informada'}". Faça UMA pergunta técnica por vez. Use linguagem simples mas técnica. País: ${appData.country||'br'}.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: chatHistory
-      })
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: systemPrompt, messages: chatHistory })
     });
     const data  = await res.json();
     const reply = data.content?.[0]?.text || 'Entendido! Pode prosseguir com a análise.';
@@ -940,58 +522,42 @@ País do cliente: ${country}. Histórico da conversa disponível abaixo.`;
   }
 }
 
-// ── STEP 2 → 3 ───────────────────────────────────────────────────────────────
+// ── STEP 2 → 3 ──
 function goStep3() {
-  const service   = document.getElementById('serviceType').value;
-  const area      = parseFloat(document.getElementById('area').value);
-  const standard  = document.getElementById('standard').value;
-  const material  = document.getElementById('material').value;
-  const demolition= document.getElementById('demolition').value;
-
-  if (!service || !area || area < 1) {
-    alert('Selecione o tipo de serviço e informe a área corretamente.'); return;
-  }
-
-  appData.service    = service;
-  appData.area       = area;
-  appData.standard   = standard;
-  appData.material   = material;
-  appData.demolition = demolition;
-  appData.description= document.getElementById('description').value;
-
+  const service    = document.getElementById('serviceType').value;
+  const area       = parseFloat(document.getElementById('area').value);
+  const standard   = document.getElementById('standard').value;
+  const demolition = document.getElementById('demolition').value;
+  if (!service || !area || area < 1) { alert('Selecione o tipo de serviço e informe a área corretamente.'); return; }
+  appData.service     = service;
+  appData.area        = area;
+  appData.standard    = standard;
+  appData.material    = document.getElementById('material').value;
+  appData.demolition  = demolition;
+  appData.description = document.getElementById('description').value;
   const labels = { basico: 'Básico', medio: 'Médio', alto: 'Alto padrão' };
-  const etapas = TIMELINES_COUNT[service] || 6;
-  const alertas = demolition === 'sim' ? 'Sim (demolição)' : 'Nenhum crítico';
-
-  document.getElementById('prevTipo').textContent   = SERVICE_LABELS[service] || service;
-  document.getElementById('prevArea').textContent   = area + ' m²';
-  document.getElementById('prevPadrao').textContent = labels[standard];
-  document.getElementById('prevComp').textContent   = area > 100 ? 'Alta' : area > 50 ? 'Média' : 'Baixa';
-  document.getElementById('prevEtapas').textContent = etapas + ' etapas';
-  document.getElementById('prevAlertas').textContent= alertas;
-
+  document.getElementById('prevTipo').textContent    = SERVICE_LABELS[service] || service;
+  document.getElementById('prevArea').textContent    = area + ' m²';
+  document.getElementById('prevPadrao').textContent  = labels[standard];
+  document.getElementById('prevComp').textContent    = area > 100 ? 'Alta' : area > 50 ? 'Média' : 'Baixa';
+  document.getElementById('prevEtapas').textContent  = (TIMELINES_COUNT[service] || 6) + ' etapas';
+  document.getElementById('prevAlertas').textContent = demolition === 'sim' ? 'Sim (demolição)' : 'Nenhum crítico';
   setStep(3);
 }
 
-// ── EMAILS COM ACESSO GRATUITO ───────────────────────────────────────────────
-const FREE_ACCESS_EMAILS = [
-  'roger.igh@gmail.com',
-  'roger.igh@hotmail.com',
-  'rogerio@orcamentodeobrarapido.com.br'
-];
-
-// ── CHECKOUT STRIPE ───────────────────────────────────────────────────────────
+// ── CHECKOUT ──
 async function goCheckout() {
   const btn = document.getElementById('payBtn');
   btn.disabled = true;
   btn.textContent = 'Aguarde...';
 
-  // Verifica se é email com acesso gratuito
   const emailLower = (appData.email || '').toLowerCase().trim();
+
+  // ✅ ACESSO GRATUITO
   if (FREE_ACCESS_EMAILS.includes(emailLower)) {
     showLoading('Gerando seu orçamento gratuito...');
     try {
-      const res = await fetch(`${BACKEND_URL}/free-access`, {
+      const res = await fetch(BACKEND_URL + '/free-access', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(appData)
@@ -1004,33 +570,29 @@ async function goCheckout() {
         document.querySelector('.container').style.display = 'none';
         document.getElementById('successScreen').style.display = 'flex';
       } else {
-        alert('Erro ao gerar orçamento gratuito. Tente novamente.');
-        setStep(3);
+        alert('Erro ao gerar orçamento gratuito: ' + (data.error || 'Tente novamente.'));
         btn.disabled = false;
         btn.textContent = 'Acessar orçamento completo →';
       }
     } catch(e) {
       hideLoading();
-      alert('Erro de conexão. Tente novamente.');
-      setStep(3);
+      alert('Erro de conexão com o servidor. Tente novamente.');
       btn.disabled = false;
       btn.textContent = 'Acessar orçamento completo →';
     }
     return;
   }
 
+  // ✅ PAGAMENTO STRIPE
   showLoading('Criando sessão de pagamento segura...');
   setStep(4);
-
   try {
-    const res = await fetch(`${BACKEND_URL}/create-checkout`, {
+    const res = await fetch(BACKEND_URL + '/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(appData)
     });
-
     const data = await res.json();
-
     if (data.url) {
       window.location.href = data.url;
     } else {
@@ -1053,27 +615,24 @@ function showLoading(msg) {
   document.getElementById('loadingText').textContent = msg || 'Processando...';
   document.getElementById('loadingOverlay').classList.add('show');
 }
-
 function hideLoading() {
   document.getElementById('loadingOverlay').classList.remove('show');
 }
 
-// ── DETECTA RETORNO DO STRIPE ─────────────────────────────────────────────────
+// ── RETORNO STRIPE ──
 function checkSuccess() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('session_id')) {
-    // Esconde tudo e mostra tela de sucesso
     document.querySelector('nav').style.display = 'none';
     document.querySelector('.hero').style.display = 'none';
     document.querySelector('.container').style.display = 'none';
     document.getElementById('successScreen').style.display = 'flex';
   }
 }
-
 window.addEventListener('DOMContentLoaded', checkSuccess);
 </script>
 
-<!-- TELA DE SUCESSO (aparece após pagamento) -->
+<!-- TELA DE SUCESSO -->
 <div id="successScreen" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:2rem;background:#F1EFE8;">
   <div style="background:white;border-radius:16px;padding:2.5rem 2rem;max-width:460px;width:100%;text-align:center;border:1px solid rgba(0,0,0,0.08);">
     <div style="width:72px;height:72px;background:#E1F5EE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:32px;">✓</div>
@@ -1099,3 +658,10 @@ window.addEventListener('DOMContentLoaded', checkSuccess);
 
 </body>
 </html>
+HTMLEOF
+echo "✅ index.html gerado com sucesso"
+wc -l /mnt/user-data/outputs/index.html
+Saída
+
+✅ index.html gerado com sucesso
+657 /mnt/user-data/outputs/index.html
