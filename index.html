@@ -83,7 +83,8 @@
     .loading-overlay.show { display: flex; }
     .spinner { width: 36px; height: 36px; border: 3px solid var(--green-mid); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 14px; color: var(--text-muted); }
+    .loading-text { font-size: 14px; color: var(--text-muted); text-align: center; max-width: 280px; }
+    .server-status { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     .hidden { display: none !important; }
     @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } .trust-row { gap: 0.75rem; } }
   </style>
@@ -93,6 +94,7 @@
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="loading-text" id="loadingText">Processando...</div>
+  <div class="server-status" id="serverStatus"></div>
 </div>
 
 <nav>
@@ -348,7 +350,40 @@ let chatHistory = [];
 let uploadedPhotos = [];
 let uploadedPdf = null;
 
-// ── STEPS ──
+// ── ACORDAR O BACKEND (ping silencioso) ──────────────────────────────────────
+// Chamado assim que o usuário chega no Step 1, para o servidor já estar acordado
+function pingBackend() {
+  fetch(BACKEND_URL + '/health', { method: 'GET' })
+    .then(() => console.log('✅ Backend acordado'))
+    .catch(() => console.log('⚠️ Backend ainda acordando...'));
+}
+
+// Inicia o ping logo ao carregar a página
+window.addEventListener('DOMContentLoaded', () => {
+  pingBackend();
+  checkSuccess();
+});
+
+// ── FETCH COM RETRY ──────────────────────────────────────────────────────────
+// Tenta até 3 vezes com intervalo de 5s — resolve o problema de hibernação
+async function fetchComRetry(url, options, tentativas = 3, intervalo = 5000) {
+  for (let i = 1; i <= tentativas; i++) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
+      const res = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timeout);
+      return res;
+    } catch (err) {
+      if (i === tentativas) throw err;
+      document.getElementById('serverStatus').textContent =
+        `Servidor iniciando... tentativa ${i}/${tentativas}`;
+      await new Promise(r => setTimeout(r, intervalo));
+    }
+  }
+}
+
+// ── STEPS ────────────────────────────────────────────────────────────────────
 function setStep(n) {
   [1,2,3,4].forEach(i => {
     document.getElementById('step'+i).classList.toggle('hidden', i !== n);
@@ -361,7 +396,7 @@ function setStep(n) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── STEP 1 → 2 ──
+// ── STEP 1 → 2 ───────────────────────────────────────────────────────────────
 function goStep2() {
   const name  = document.getElementById('userName').value.trim();
   const email = document.getElementById('userEmail').value.trim();
@@ -375,10 +410,8 @@ function goStep2() {
   setStep(2);
 }
 
-// ── UPLOAD FOTOS ──
-function handlePhotoSelect(input) {
-  processPhotos(Array.from(input.files).slice(0, 4));
-}
+// ── UPLOAD FOTOS ──────────────────────────────────────────────────────────────
+function handlePhotoSelect(input) { processPhotos(Array.from(input.files).slice(0, 4)); }
 function handlePhotoDrop(e) {
   e.preventDefault();
   document.getElementById('photoDropZone').style.borderColor = 'var(--border)';
@@ -406,7 +439,7 @@ function processPhotos(files) {
   }
 }
 
-// ── UPLOAD PDF ──
+// ── UPLOAD PDF ────────────────────────────────────────────────────────────────
 function handlePdfSelect(input) {
   const file = input.files[0];
   if (!file) return;
@@ -432,7 +465,7 @@ function handlePdfDrop(e) {
   }
 }
 
-// ── ANÁLISE DE UPLOADS ──
+// ── ANÁLISE DE UPLOADS ────────────────────────────────────────────────────────
 async function analyzeUploads() {
   if (uploadedPhotos.length === 0 && !uploadedPdf) return;
   showTyping();
@@ -447,9 +480,7 @@ async function analyzeUploads() {
     userContent.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: uploadedPdf.base64 } });
   }
   userContent.push({ type: 'text', text: `Analise as imagens/documentos enviados referente a este projeto: ${SERVICE_LABELS[service]||'reforma'}, área ${area||'?'} m². Descrição: ${desc||'não informada'}. Identifique o estado atual, problemas visíveis, e o que será necessário para a obra. Seja técnico e objetivo.` });
-
-  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência. Analise as imagens com olhar técnico: descreva o estado atual, aponte riscos, mencione o que impacta o custo e termine com UMA pergunta técnica para refinar o orçamento. Seja direto e específico, nunca genérico. Projeto: ${SERVICE_LABELS[service]||'reforma'}, ${area||'?'} m².`;
-
+  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência. Analise as imagens com olhar técnico: descreva o estado atual, aponte riscos, mencione o que impacta o custo e termine com UMA pergunta técnica. Seja direto e específico. Projeto: ${SERVICE_LABELS[service]||'reforma'}, ${area||'?'} m².`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -469,7 +500,7 @@ async function analyzeUploads() {
   }
 }
 
-// ── CHAT ──
+// ── CHAT ──────────────────────────────────────────────────────────────────────
 function addBubble(text, who) {
   const msgs = document.getElementById('chatMessages');
   const d = document.createElement('div');
@@ -495,13 +526,10 @@ async function sendChat() {
   addBubble(text, 'user');
   chatHistory.push({ role: 'user', content: text });
   showTyping();
-
   const service = document.getElementById('serviceType').value;
   const area    = document.getElementById('area').value;
   const desc    = document.getElementById('description').value;
-
-  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência em obras residenciais e comerciais. Contexto do projeto: tipo ${SERVICE_LABELS[service]||'não informado'}, área ${area||'?'} m², descrição: "${desc||'não informada'}". Faça UMA pergunta técnica por vez. Use linguagem simples mas técnica. País: ${appData.country||'br'}.`;
-
+  const systemPrompt = `Você é o Eng. Rafael, engenheiro civil com CREA ativo e 20 anos de experiência. Contexto: tipo ${SERVICE_LABELS[service]||'não informado'}, área ${area||'?'} m², descrição: "${desc||'não informada'}". Faça UMA pergunta técnica por vez. Use linguagem simples mas técnica. País: ${appData.country||'br'}.`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -519,7 +547,7 @@ async function sendChat() {
   }
 }
 
-// ── STEP 2 → 3 ──
+// ── STEP 2 → 3 ───────────────────────────────────────────────────────────────
 function goStep3() {
   const service    = document.getElementById('serviceType').value;
   const area       = parseFloat(document.getElementById('area').value);
@@ -539,10 +567,23 @@ function goStep3() {
   document.getElementById('prevComp').textContent    = area > 100 ? 'Alta' : area > 50 ? 'Média' : 'Baixa';
   document.getElementById('prevEtapas').textContent  = (TIMELINES_COUNT[service] || 6) + ' etapas';
   document.getElementById('prevAlertas').textContent = demolition === 'sim' ? 'Sim (demolição)' : 'Nenhum crítico';
+  // Faz novo ping ao chegar no step 3 para garantir servidor acordado
+  pingBackend();
   setStep(3);
 }
 
-// ── CHECKOUT ──
+// ── LOADING ───────────────────────────────────────────────────────────────────
+function showLoading(msg) {
+  document.getElementById('loadingText').textContent = msg || 'Processando...';
+  document.getElementById('serverStatus').textContent = '';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+  document.getElementById('serverStatus').textContent = '';
+}
+
+// ── CHECKOUT ──────────────────────────────────────────────────────────────────
 async function goCheckout() {
   const btn = document.getElementById('payBtn');
   btn.disabled = true;
@@ -554,7 +595,7 @@ async function goCheckout() {
   if (FREE_ACCESS_EMAILS.includes(emailLower)) {
     showLoading('Gerando seu orçamento gratuito...');
     try {
-      const res = await fetch(BACKEND_URL + '/free-access', {
+      const res = await fetchComRetry(BACKEND_URL + '/free-access', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(appData)
@@ -567,13 +608,13 @@ async function goCheckout() {
         document.querySelector('.container').style.display = 'none';
         document.getElementById('successScreen').style.display = 'flex';
       } else {
-        alert('Erro ao gerar orçamento gratuito: ' + (data.error || 'Tente novamente.'));
+        alert('Erro ao gerar orçamento: ' + (data.error || 'Tente novamente.'));
         btn.disabled = false;
         btn.textContent = 'Acessar orçamento completo →';
       }
     } catch(e) {
       hideLoading();
-      alert('Erro de conexão com o servidor. Tente novamente.');
+      alert('O servidor demorou para responder. Por favor, clique em "Acessar orçamento completo" novamente — o servidor já está acordado agora.');
       btn.disabled = false;
       btn.textContent = 'Acessar orçamento completo →';
     }
@@ -584,7 +625,7 @@ async function goCheckout() {
   showLoading('Criando sessão de pagamento segura...');
   setStep(4);
   try {
-    const res = await fetch(BACKEND_URL + '/create-checkout', {
+    const res = await fetchComRetry(BACKEND_URL + '/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(appData)
@@ -599,7 +640,7 @@ async function goCheckout() {
       btn.textContent = 'Acessar orçamento completo →';
     }
   } catch(e) {
-    alert('Erro de conexão. Verifique sua internet e tente novamente.');
+    alert('O servidor demorou para responder. Clique em "Acessar orçamento completo" novamente — o servidor já está acordado.');
     setStep(3);
     btn.disabled = false;
     btn.textContent = 'Acessar orçamento completo →';
@@ -608,15 +649,7 @@ async function goCheckout() {
   }
 }
 
-function showLoading(msg) {
-  document.getElementById('loadingText').textContent = msg || 'Processando...';
-  document.getElementById('loadingOverlay').classList.add('show');
-}
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('show');
-}
-
-// ── RETORNO STRIPE ──
+// ── RETORNO STRIPE ────────────────────────────────────────────────────────────
 function checkSuccess() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('session_id')) {
@@ -626,15 +659,14 @@ function checkSuccess() {
     document.getElementById('successScreen').style.display = 'flex';
   }
 }
-window.addEventListener('DOMContentLoaded', checkSuccess);
 </script>
 
 <!-- TELA DE SUCESSO -->
 <div id="successScreen" style="display:none;min-height:100vh;align-items:center;justify-content:center;padding:2rem;background:#F1EFE8;">
   <div style="background:white;border-radius:16px;padding:2.5rem 2rem;max-width:460px;width:100%;text-align:center;border:1px solid rgba(0,0,0,0.08);">
     <div style="width:72px;height:72px;background:#E1F5EE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:32px;">✓</div>
-    <h1 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:600;margin-bottom:0.5rem;color:#0F6E56;">Pagamento confirmado!</h1>
-    <p style="font-size:14px;color:#5F5E5A;margin-bottom:2rem;line-height:1.6;">Seu orçamento técnico profissional está sendo gerado e será entregue em instantes.</p>
+    <h1 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:600;margin-bottom:0.5rem;color:#0F6E56;">Orçamento gerado com sucesso!</h1>
+    <p style="font-size:14px;color:#5F5E5A;margin-bottom:2rem;line-height:1.6;">Seu orçamento técnico profissional está sendo preparado e será entregue em instantes.</p>
     <div style="background:#E1F5EE;border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;text-align:left;">
       <div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;color:#085041;margin-bottom:10px;line-height:1.4;">
         <span style="font-size:16px;flex-shrink:0;">📧</span>
