@@ -366,18 +366,18 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ── FETCH COM RETRY ──────────────────────────────────────────────────────────
 // Tenta até 3 vezes com intervalo de 5s — resolve o problema de hibernação
-async function fetchComRetry(url, options, tentativas = 3, intervalo = 5000) {
+async function fetchComRetry(url, options, tentativas = 4, intervalo = 15000) {
   for (let i = 1; i <= tentativas; i++) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
+      const timeout = setTimeout(() => controller.abort(), 120000); // 55s timeout
       const res = await fetch(url, { ...options, signal: controller.signal });
       clearTimeout(timeout);
       return res;
     } catch (err) {
       if (i === tentativas) throw err;
       document.getElementById('serverStatus').textContent =
-        `Servidor iniciando... tentativa ${i}/${tentativas}`;
+        `⏳ Aguarde, servidor iniciando... (${i}/${tentativas})`;
       await new Promise(r => setTimeout(r, intervalo));
     }
   }
