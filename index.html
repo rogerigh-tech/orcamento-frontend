@@ -598,7 +598,7 @@ async function goCheckout() {
       const res = await fetchComRetry(BACKEND_URL + '/free-access', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(appData)
+        body: JSON.stringify({ ...appData, photos: uploadedPhotos, pdf: uploadedPdf })
       });
       const data = await res.json();
       hideLoading();
@@ -628,7 +628,7 @@ async function goCheckout() {
     const res = await fetchComRetry(BACKEND_URL + '/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(appData)
+      body: JSON.stringify({ ...appData, photos: uploadedPhotos, pdf: uploadedPdf })
     });
     const data = await res.json();
     if (data.url) {
